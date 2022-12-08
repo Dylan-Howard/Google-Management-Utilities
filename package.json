@@ -1,6 +1,6 @@
 {
-  "name": "removeavatar.gs",
-  "version": "1.0.0",
+  "name": "google-mangament-utilities",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
