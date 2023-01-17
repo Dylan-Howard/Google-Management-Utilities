@@ -39,7 +39,7 @@ const getDocFromForm = (formElements) => {
     body.appendParagraph(item.title)
       .setHeading(DocumentApp.ParagraphHeading.HEADING1);
     if (item.choices) {
-      item.choices.forEach((choice) => body.appendParagraph(choice))
+      item.choices.forEach((choice) => body.appendListItem(choice))
     }
   })
 }
