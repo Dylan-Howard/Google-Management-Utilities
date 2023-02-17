@@ -1,5 +1,3 @@
-// import { Logger } from "../googleAppsScript/Logger";
-// import { AdminDirectory } from "../googleAppsScript/AdminDirectory";
 import { ChromeOsDevice } from "../googleAppsScript/ChromeOsDevice";
 
 /**
@@ -35,7 +33,7 @@ const calcDiskUsed = (diskUsed: number, diskTotal: number): number => Math.round
  * @param {number} storageThreshold - An integer percentage marking the threshold. 
  * @returns {boolean} - A boolean determining whether the device is above the threshold. 
  */
-const isAboveThreshold = (device: ChromeOsDevice, storageThreshold: number) => {
+const isAboveThreshold = (device: ChromeOsDevice, storageThreshold: number): boolean => {
   let isAboveThreshold = false;
   if (!device.diskVolumeReports) { return false; }
 
@@ -83,9 +81,12 @@ const getChromeDevices = ({ orgUnitPath, includeChildOrgunits } : { orgUnitPath?
     if (orgUnitPath) { parameters.orgUnitPath = orgUnitPath; }
     if (includeChildOrgunits) { parameters.includeChildOrgunits = includeChildOrgunits; }
 
+    // @ts-ignore
     const response = AdminDirectory.Chromeosdevices.list('my_customer', parameters);
-    devices.push(...response.chromeosdevices);
-
+    if (response.chromeosdevices) {
+      // @ts-ignore
+      devices.push(...response.chromeosdevices);  
+    }
     pageToken = response.nextPageToken;
   } while (pageToken);
 
@@ -127,9 +128,11 @@ const main = () => {
     .map((chromeDevice: ChromeOsDevice) : DeviceStorage => formatDeviceInfo(chromeDevice));
   Logger.log(deviceList.length);
 
-  const removeUsersQueue = deviceList.filter((dev, index) => dev.isAboveThreshold)
-    .filter((device, i) => (i <= MAX_COMMANDS));
+  const removeUsersQueue = deviceList.filter((dev) => dev.isAboveThreshold)
+    .filter((_device, i) => (i <= MAX_COMMANDS));
   Logger.log(removeUsersQueue.length);
 
   removeUsersQueue.forEach(({ deviceId }) => removeUserData(deviceId));
 }
+
+export default { main };
