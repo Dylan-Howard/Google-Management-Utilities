@@ -7,6 +7,18 @@ const duplicateFile = (fileId: string, duplicateDestination: Drive.Folder, { pre
     )
 );
 
+const getTextBoxesFromPresentation = (presentation: any) => {
+  presentation.getSlides()
+    .map((sld: any) => sld.getPageElements()
+      .map((elm: any) => {
+        if (elm.getPageElementType() !== SlidesApp.PageElementType.SHAPE) {
+          return;
+        }
+        const textBox = elm.asShape().getText();
+      })
+    )
+}
+
 const languages = {
   Arabic: 'ar',
   Bosnian: 'bs',
@@ -16,9 +28,16 @@ const languages = {
   Spanish: 'es',
 };
 
+const translateTextbox = (textBox, SOURCE_LANGUAGE: string, TARGET_LANGUAGE: string) => {
+  const text = textBox.asString();
+  textBox.replaceAllText(
+    text,
+    LanguageApp.translate(text, languages[SOURCE_LANGUAGE], languages[TARGET_LANGUAGE])
+  )
+}
+
 const main = () => {
   const TARGET_ID = '1aBIPPbrIXGkwQqbk2U7oURxDiqBU-koROjHDbo2QKpY';
-  // const TARGET_DESTIONATION_ID = '1VektNMkQEO8hXNrKIfWzsI5K8eR56Lqv';
   const TARGET_DESTIONATION_ID = DriveApp.getFileById(TARGET_ID)
     .getParents()
     .next()
@@ -38,20 +57,11 @@ const main = () => {
 
   Logger.log(duplicatePresentation.getId());
 
-  SlidesApp.openById(duplicatePresentation.getId()).getSlides()
-    .forEach((sld) => sld.getPageElements()
-      .forEach((elm) => {
-        if (elm.getPageElementType() !== SlidesApp.PageElementType.SHAPE) {
-          return;
-        }
-        const textBox = elm.asShape().getText();
-        const text = textBox.asString();
-        textBox.replaceAllText(
-          text,
-          LanguageApp.translate(text, languages[SOURCE_LANGUAGE], languages[TARGET_LANGUAGE])
-        )
-      })
-    )
+  getTextBoxesFromPresentation(
+    SlidesApp.openById(duplicatePresentation.getId())
+  )
+  // .forEach((textbox) => LanguageApp.)
+  
 };
 
 export default { main };
